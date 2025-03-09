@@ -34,7 +34,19 @@ def monoalphabetic_cipher(text, key, decrypt=False):
 
 def xor_cipher(text, key):
     valid_chars = string.ascii_letters + string.digits + string.punctuation + " "
-    return ''.join(chr(((ord(char) ^ key) % 95) + 32) if 32 <= ((ord(char) ^ key) % 95) + 32 <= 126 else char for char in text)
+    return ''.join(chr(((ord(char) ^ key) % 95) + 32) if chr(((ord(char) ^ key) % 95) + 32) in valid_chars else char for char in text)
+
+def text_to_dna(text):
+    mapping = {'00': 'A', '01': 'T', '10': 'C', '11': 'G'}
+    binary = ''.join(format(ord(char), '08b') for char in text)
+    dna = ''.join(mapping[binary[i:i+2]] for i in range(0, len(binary), 2))
+    return dna
+
+def dna_to_text(dna):
+    reverse_mapping = {'A': '00', 'T': '01', 'C': '10', 'G': '11'}
+    binary = ''.join(reverse_mapping[nuc] for nuc in dna)
+    text = ''.join(chr(int(binary[i:i+8], 2)) for i in range(0, len(binary), 8))
+    return text
 
 def wait_for_key():
     while not msvcrt.kbhit():
@@ -48,24 +60,24 @@ def copy_to_clipboard(text):
 def main_menu():
     stored_key = None
     stored_xor_key = None
-    
+
     while True:
         clear_screen()
         print("\nMain Menu:")
         print("A. Caesar Cipher")
         print("B. Monoalphabetic Cipher")
         print("C. Bitwise XOR Cipher")
-        print("D. Future Cipher (To Be Added)")
+        print("D. DNA Cipher")
         print("(Press ESC to Exit)")
-        
+
         print("Select an option (A-D): ", end="", flush=True)
         key = wait_for_key()
         if key == b'\x1b':  # ESC key
             print("\nExiting... Goodbye!")
             break
         choice = key.decode().upper()
-        
-        if choice in ["A", "B", "C"]:
+
+        if choice in ["A", "B", "C", "D"]:
             clear_screen()
             text = ""
             while not text.strip():
@@ -73,13 +85,13 @@ def main_menu():
                 text = input().strip()
                 if not text:
                     print("Input cannot be empty. Please enter valid text.")
-            
+
             action = ""
             while action not in ["e", "d"]:
                 print("Encrypt or Decrypt? (e/d):")
                 action = input().lower()
             decrypt = action == 'd'
-            
+
             if choice == "A":
                 shift = None
                 while shift is None:
@@ -89,6 +101,7 @@ def main_menu():
                     except ValueError:
                         print("Invalid input. Please enter a numeric shift value.")
                 result = caesar_cipher(text, shift, decrypt)
+
             elif choice == "B":
                 if decrypt and stored_key:
                     print("Use stored key? (y/n):")
@@ -116,6 +129,7 @@ def main_menu():
                     stored_key = key
                 print("Using Key:", key)
                 result = monoalphabetic_cipher(text, key, decrypt)
+
             elif choice == "C":
                 if decrypt and stored_xor_key is not None:
                     print("Use stored key? (y/n):")
@@ -136,23 +150,27 @@ def main_menu():
                         print("Invalid input. Please enter a numeric key between 0 and 255.")
                 stored_xor_key = key
                 result = xor_cipher(text, key)
-            
+
+            elif choice == "D":
+                if decrypt:
+                    result = dna_to_text(text)
+                else:
+                    result = text_to_dna(text)
+
             print("\nResult:", result)
-            
+
             if not decrypt:
                 print("\nCopy result to clipboard? (y/n):")
                 copy_choice = input().lower()
                 if copy_choice == 'y':
                     copy_to_clipboard(result)
                     print("Result copied to clipboard.")
-            
+
             print("\nPress any key to return to the main menu...")
             wait_for_key()
-        elif choice == "D":
-            print("Future cipher placeholder.")
         else:
             print("Invalid choice. Please select a letter between A and D.")
-        
+
         clear_screen()
 
 if __name__ == "__main__":
