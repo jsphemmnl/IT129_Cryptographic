@@ -14,6 +14,21 @@ class CipherUtilities:
         os.system('cls' if os.name == 'nt' else 'clear')
 
     @staticmethod
+    def text_to_dna(text):
+        mapping = {'00': 'A', '01': 'T', '10': 'C', '11': 'G'}
+        binary = ''.join(format(ord(char), '08b') for char in text)
+        dna = ''.join(mapping[binary[i:i+2]] for i in range(0, len(binary), 2))
+        return dna
+
+    @staticmethod
+    def dna_to_text(dna):
+        reverse_mapping = {'A': '00', 'T': '01', 'C': '10', 'G': '11'}
+        binary = ''.join(reverse_mapping[nuc] for nuc in dna)
+        text = ''.join(chr(int(binary[i:i+8], 2)) for i in range(0, len(binary), 8))
+        return text
+
+
+    @staticmethod
     def caesar_cipher(text, shift, decrypt=False):
         if decrypt:
             shift = -shift
@@ -43,8 +58,11 @@ class CipherUtilities:
 
     @staticmethod
     def xor_cipher(text, key):
-        valid_chars = string.ascii_letters + string.digits + string.punctuation + " "
-        return ''.join(chr(((ord(char) ^ key) % 95) + 32) if 32 <= ((ord(char) ^ key) % 95) + 32 <= 126 else char for char in text)
+        return ''.join(chr(((ord(char) ^ key) % 95) + 32) 
+        if 32 <= ((ord(char) ^ key) % 95) + 32 <= 126 
+        else char
+        for char in text
+    )
 
     @staticmethod
     def wait_for_key():
