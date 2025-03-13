@@ -58,11 +58,15 @@ class CipherUtilities:
 
     @staticmethod
     def xor_cipher(text, key):
+        encrypted_chars = [chr(ord(c) ^ ord(key[i % len(key)])%95+32) for i, c in enumerate(text)]
+        return ''.join(encrypted_chars)
+    '''
         return ''.join(chr(((ord(char) ^ key) % 95) + 32) 
         if 32 <= ((ord(char) ^ key) % 95) + 32 <= 126 
         else char
         for char in text
     )
+    '''
 
     @staticmethod
     def wait_for_key():
