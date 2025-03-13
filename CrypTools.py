@@ -58,7 +58,7 @@ class CipherUtilities:
 
     @staticmethod
     def xor_cipher(text, key):
-        encrypted_chars = [chr(ord(c) ^ ord(key[i % len(key)])%95+32) for i, c in enumerate(text)]
+        encrypted_chars = [chr(ord(c) ^ ord(key[i % len(key)])%95+26) for i, c in enumerate(text)]
         return ''.join(encrypted_chars)
 
     @staticmethod
